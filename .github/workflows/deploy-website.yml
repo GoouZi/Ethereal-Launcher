@@ -1,0 +1,74 @@
+name: Deploy Ethereal Website
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "website-deploy/**"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EMCL_SSH_KEY }}
+          SSH_HOST: ${{ secrets.EMCL_HOST }}
+          SSH_PORT: ${{ secrets.EMCL_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/emcl_deploy_key
+          chmod 600 ~/.ssh/emcl_deploy_key
+
+          ssh-keyscan -H -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Test server connection
+        env:
+          SSH_HOST: ${{ secrets.EMCL_HOST }}
+          SSH_USER: ${{ secrets.EMCL_USER }}
+          SSH_PORT: ${{ secrets.EMCL_PORT }}
+        run: |
+          ssh \
+            -i ~/.ssh/emcl_deploy_key \
+            -p "$SSH_PORT" \
+            "$SSH_USER@$SSH_HOST" \
+            'mkdir -p /www/wwwroot/emcl.goouzi.top/update /www/wwwroot/emcl.goouzi.top/changelog && echo "GitHub Actions deployment works!" > /www/wwwroot/emcl.goouzi.top/update/github-actions-test.txt'
+
+      - name: Deploy update files
+        env:
+          SSH_HOST: ${{ secrets.EMCL_HOST }}
+          SSH_USER: ${{ secrets.EMCL_USER }}
+          SSH_PORT: ${{ secrets.EMCL_PORT }}
+        run: |
+          if [ -d "website-deploy/update" ]; then
+            rsync -avz \
+              -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT" \
+              website-deploy/update/ \
+              "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/update/"
+          fi
+
+      - name: Deploy changelog files
+        env:
+          SSH_HOST: ${{ secrets.EMCL_HOST }}
+          SSH_USER: ${{ secrets.EMCL_USER }}
+          SSH_PORT: ${{ secrets.EMCL_PORT }}
+        run: |
+          if [ -d "website-deploy/changelog" ]; then
+            rsync -avz \
+              -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT" \
+              website-deploy/changelog/ \
+              "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/changelog/"
+          fi
