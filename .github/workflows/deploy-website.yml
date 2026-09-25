@@ -54,7 +54,7 @@ jobs:
           SSH_PORT: ${{ secrets.EMCL_PORT }}
         run: |
           if [ -d "website-deploy/update" ]; then
-            rsync -avz --omit-dir-times \
+            rsync -avz --omit-dir-times --no-perms --no-owner --no-group \
               -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT" \
               website-deploy/update/ \
               "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/update/"
@@ -67,7 +67,7 @@ jobs:
           SSH_PORT: ${{ secrets.EMCL_PORT }}
         run: |
           if [ -d "website-deploy/changelog" ]; then
-            rsync -avz --omit-dir-times \
+            rsync -avz --omit-dir-times --no-perms --no-owner --no-group \
               -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT" \
               website-deploy/changelog/ \
               "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/changelog/"
