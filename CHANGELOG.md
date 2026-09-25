@@ -1,41 +1,89 @@
-# Changelog
+# 更新记录
 
-This file records verified development milestones and public release changes for Ethereal Launcher.
+这里记录 Ethereal Launcher 已确认的版本更新与发布基础设施里程碑。
 
-> Earlier development happened before the GitHub repository became the main public release channel. The entries below only include milestones that can be confirmed; missing historical version numbers are intentionally not invented.
+## beta 0.9.2 · Build 132
 
-## 2026-09-24
+- 每次启动启动器时，通过 Sparkle 在后台执行一次更新检查。
+- 只有发现新版本时才显示应用内更新窗口；当前已是最新版或更新服务器连接失败时不打扰用户。
+- 保留手动“检查更新”入口的原有反馈，用户主动检查时仍会显示检查结果或错误信息。
 
-### Project and release infrastructure
+## beta 0.9.1 · Build 131
 
-- Unified the product-facing name as **Ethereal Launcher**.
-- Kept **EMCL** as the established short name used by the project and website.
-- Established the official website at **https://emcl.goouzi.top**.
-- Connected the GitHub repository **GoouZi/Ethereal-Launcher** with the website server through GitHub Actions and SSH deployment.
-- Verified automatic deployment to the website update directory.
-- Defined the release structure for GitHub Releases, website downloads, changelogs, and launcher update metadata.
-- Prepared the project to use **Sparkle 2** for in-app updates on macOS, with the update feed hosted at:
-  - https://emcl.goouzi.top/update/appcast.xml
+- 模组更新会在下载和哈希校验完成后直接替换旧文件；若新版文件已存在，则安全覆盖并清理旧文件，失败时恢复原文件。
+- 管理模组页面不再在打开时自动联网，用户点击“检查更新”后才连接 Modrinth。
+- 启动器检查更新窗口移除 Logo，使标题和状态信息更简洁。
 
-### Website
+## beta 0.9.0 · Build 130
 
-- Reworked the Ethereal Launcher website around the product's core positioning:
-  - macOS
-  - native
-  - beginner friendly
-  - lightweight
-- Added a direct-download path alongside the GitHub release channel.
-- Added support for displaying release information from website update metadata.
+- 本地版本管理卡片统一高度与操作层级，带模组加载器的版本不再显得臃肿。
+- 新增模组管理界面，支持启用、禁用、检查更新、逐项更新与全部更新。
+- 模组项目图标和名称通过 Modrinth 识别并显示。
+- 优化 Modrinth 图片缓存和预取，减少模组、材质包及光影包列表图片等待时间。
+- 重新设计启动器检查更新窗口，保留 Sparkle 的下载、签名验证、替换和重启流程。
 
-## 2026-09-23
+## beta 0.8.2 · Build 129
 
-### Public project setup
+- 修正下拉菜单的圆角、边缘和整体视觉风格。
+- 重做滚动区域边缘渐隐逻辑，仅在仍可滚动时显示，避免内容到顶后继续发白。
+- 菜单栏“检查更新”会先进入关于页面，再启动更新检查。
+- 使用启动器统一视觉风格重做 Sparkle 更新界面。
 
-- Created the public GitHub repository:
-  - https://github.com/GoouZi/Ethereal-Launcher
-- Established the project positioning as a beginner-friendly Minecraft launcher for macOS.
-- Defined the core goal: reduce the need for users to manually deal with Java setup, dependencies, and other computer configuration before playing Minecraft.
+## beta 0.8.1 · Build 128
 
----
+- 下拉菜单增加悬停反馈、点击外部关闭及非线性动画，并统一主页与设置页的下拉控件。
+- 调整滚动区域边缘处理和默认窗口尺寸。
+- 统一产品名称为 Ethereal Launcher，并同步 App、关于页与界面文案。
+- 通过 Swift Package Manager 集成 Sparkle 2，建立应用内自动更新链路与 EdDSA 验证。
 
-Future public releases will be recorded here with explicit version numbers, dates, additions, changes, and fixes.
+## beta 0.8.0 · Build 127
+
+- 设置中心改为“游戏 / 个性化 / 关于 Ethereal Launcher”分类，并统一标题、卡片、侧边栏、标签页与按钮层级。
+- 版本隔离升级为关闭、仅隔离加载器版本、隔离所有版本三档；旧开关会自动迁移，默认隔离所有版本。
+- 版本下载分类改为互斥标签页，并在版本类型和 Java 要求之间显示发布日期。
+- 页面切换、弹窗、目录和网页入口在鼠标按下时响应，同时保留键盘与 VoiceOver 操作。
+- 关于页面新增作者网站、GitHub 与检查更新入口；菜单栏的关于和检查更新会导航到该页面。
+- 建立界面设计规范；保留新系统材质和动画，在 macOS 12.4 及减少透明度、减少动态效果环境中提供兼容回退。
+- 每次更新前建立带 SHA-256 清单的完整源码备份。
+
+## beta 0.7.0 · Build 126
+
+- 设置中心改为“游戏 / 个性化 / 关于 Ethereal Launcher”分类，并统一标题、卡片、侧边栏、标签页与按钮层级。
+- 版本隔离升级为关闭、仅隔离加载器版本、隔离所有版本三档；旧开关会自动迁移，默认隔离所有版本。
+- 版本下载分类改为互斥标签页，并在版本类型和 Java 要求之间显示发布日期。
+- 页面切换、弹窗、目录和网页入口在鼠标按下时响应，同时保留键盘与 VoiceOver 操作。
+- 关于页面新增作者网站、GitHub 与检查更新入口；菜单栏的关于和检查更新会导航到该页面。
+- 建立界面设计规范；保留新系统材质和动画，在 macOS 12.4 及减少透明度、减少动态效果环境中提供兼容回退。
+- 每次更新前建立带 SHA-256 清单的完整源码备份。
+
+## beta 0.6.0 · Build 125
+
+- 新增自动内存、Java 管理、版本隔离、智能完整性检查、窗口尺寸和启动后行为设置。
+- 新增单独版本设置，可覆盖全局隔离、完整性、Java 和内存策略。
+- 启动器自动下载并管理所需 Java；自定义 Java 会在使用前验证版本。
+- 启动前完整性检查支持缓存，并可从设置页手动完整检查和修复。
+- 模组、资源包和光影会写入当前版本实际使用的游戏目录，并校验 Modrinth 文件哈希。
+- 优化 Ethereal Logo 的非线性过渡，并支持 macOS“减少动态效果”。
+- 原生库只在内容变化时重建，补全 macOS 规则、架构与自定义分辨率参数处理。
+
+## beta 0.5.3 · Build 124
+
+- 修复 Fabric/Forge 覆盖原版游戏与 JVM 参数的问题，正确处理加载器依赖覆盖。
+- 启动前修复旧加载器配置并校验游戏文件；保留 gameData 中的存档、模组和设置。
+- 对具有大小或 SHA-1 元数据的客户端、依赖、原生库和资源文件校验缓存与下载结果；损坏内容触发重试，仅将有效内容原子写入目标文件。
+- 修复 Forge 安装结果目录识别及错误显示，补充 library_directory 参数。
+- 取消下载时等待任务与安装子进程停止，再清理和解锁。
+- 拒绝点目录、父目录及越界符号链接，保护安装和删除目录边界。
+- 统一应用版本、界面显示与启动器标识。
+
+## 2026-09-24 · 发布基础设施
+
+- 统一产品名称为 Ethereal Launcher，并保留 EMCL 作为项目与官网简称。
+- 建立官网 https://emcl.goouzi.top。
+- 通过 GitHub Actions 与 SSH 连接官网服务器，验证更新目录自动部署。
+- 建立 GitHub Releases、官网更新目录、更新日志与 Sparkle appcast 的发布结构。
+
+## 2026-09-23 · 公开项目页面
+
+- 创建 GitHub 仓库 https://github.com/GoouZi/Ethereal-Launcher。
+- 确立面向 macOS、原生、小白友好和自动处理 Java/依赖的产品方向。
