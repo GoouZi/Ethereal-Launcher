@@ -7,7 +7,6 @@ on:
     paths:
       - "website-deploy/**"
       - ".github/workflows/deploy-website.yml"
-
   workflow_dispatch:
 
 permissions:
@@ -42,7 +41,8 @@ jobs:
           SSH_PORT: ${{ secrets.EMCL_PORT }}
         run: |
           set -euo pipefail
-          ssh -i ~/.ssh/emcl_deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST"             'mkdir -p /www/wwwroot/emcl.goouzi.top/update/releases /www/wwwroot/emcl.goouzi.top/changelog'
+          ssh -i ~/.ssh/emcl_deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+            'mkdir -p /www/wwwroot/emcl.goouzi.top/update/releases /www/wwwroot/emcl.goouzi.top/changelog'
 
       - name: Mirror latest release asset to website
         env:
@@ -58,38 +58,48 @@ jobs:
             exit 0
           fi
 
-          GITHUB_URL="$(python3 -c 'import json; d=json.load(open("website-deploy/update/latest.json", encoding="utf-8")); print(d.get("github_download_url") or d.get("download_url") or "")')"
+          GITHUB_URL="$(python3 -c 'import json; d=json.load(open("website-deploy/update/latest.json", encoding="utf-8")); print(d.get("github_download_url") or "")')"
           EXPECTED_SHA="$(python3 -c 'import json; d=json.load(open("website-deploy/update/latest.json", encoding="utf-8")); print(d.get("sha256") or "")')"
 
           if [ -z "$GITHUB_URL" ]; then
-            echo "No GitHub release asset URL found in latest.json; skipping mirror."
-            exit 0
+            echo "No GitHub release asset URL found in latest.json."
+            exit 1
           fi
 
           FILE_NAME="$(basename "$GITHUB_URL")"
-          mkdir -p /tmp/emcl-release-mirror
+          TMP_DIR="/tmp/emcl-release-mirror"
+          mkdir -p "$TMP_DIR"
 
-          echo "Downloading $FILE_NAME from GitHub Release..."
-          curl -fL --retry 3 --retry-delay 2 "$GITHUB_URL"             -o "/tmp/emcl-release-mirror/$FILE_NAME"
+          curl -fL --retry 3 --retry-delay 2 "$GITHUB_URL" -o "$TMP_DIR/$FILE_NAME"
 
           if [ -n "$EXPECTED_SHA" ]; then
-            ACTUAL_SHA="$(sha256sum "/tmp/emcl-release-mirror/$FILE_NAME" | awk '{print $1}')"
-            if [ "$ACTUAL_SHA" != "$EXPECTED_SHA" ]; then
-              echo "SHA-256 mismatch."
-              echo "Expected: $EXPECTED_SHA"
-              echo "Actual:   $ACTUAL_SHA"
-              exit 1
-            fi
-            printf '%s  %s\n' "$EXPECTED_SHA" "$FILE_NAME"               > "/tmp/emcl-release-mirror/$FILE_NAME.sha256"
+            ACTUAL_SHA="$(sha256sum "$TMP_DIR/$FILE_NAME" | awk '{print $1}')"
+            test "$ACTUAL_SHA" = "$EXPECTED_SHA"
+            printf '%s  %s\n' "$EXPECTED_SHA" "$FILE_NAME" > "$TMP_DIR/$FILE_NAME.sha256"
           fi
 
-          rsync -avz --omit-dir-times --no-perms --no-owner --no-group             -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT"             /tmp/emcl-release-mirror/             "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/update/releases/"
+          rsync -avz --omit-dir-times --no-perms --no-owner --no-group \
+            -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT" \
+            "$TMP_DIR/$FILE_NAME" \
+            "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/update/releases/$FILE_NAME"
 
-          REMOTE_SHA="$(ssh -i ~/.ssh/emcl_deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST"             "sha256sum '/www/wwwroot/emcl.goouzi.top/update/releases/$FILE_NAME' | awk '{print \$1}'")"
+          if [ -f "$TMP_DIR/$FILE_NAME.sha256" ]; then
+            rsync -avz --omit-dir-times --no-perms --no-owner --no-group \
+              -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT" \
+              "$TMP_DIR/$FILE_NAME.sha256" \
+              "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/update/releases/$FILE_NAME.sha256"
+          fi
 
-          if [ -n "$EXPECTED_SHA" ] && [ "$REMOTE_SHA" != "$EXPECTED_SHA" ]; then
-            echo "Remote mirror SHA-256 mismatch."
-            exit 1
+          ssh -i ~/.ssh/emcl_deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+            "cp -f '/www/wwwroot/emcl.goouzi.top/update/releases/$FILE_NAME' '/www/wwwroot/emcl.goouzi.top/update/releases/Ethereal-Launcher-latest.zip'"
+
+          if [ -n "$EXPECTED_SHA" ]; then
+            REMOTE_SHA="$(ssh -i ~/.ssh/emcl_deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+              "sha256sum '/www/wwwroot/emcl.goouzi.top/update/releases/$FILE_NAME' | awk '{print \$1}'")"
+            LATEST_SHA="$(ssh -i ~/.ssh/emcl_deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+              "sha256sum '/www/wwwroot/emcl.goouzi.top/update/releases/Ethereal-Launcher-latest.zip' | awk '{print \$1}'")"
+            test "$REMOTE_SHA" = "$EXPECTED_SHA"
+            test "$LATEST_SHA" = "$EXPECTED_SHA"
           fi
 
       - name: Deploy changelog files
@@ -99,9 +109,10 @@ jobs:
           SSH_PORT: ${{ secrets.EMCL_PORT }}
         run: |
           set -euo pipefail
-          if [ -d "website-deploy/changelog" ]; then
-            rsync -avz --omit-dir-times --no-perms --no-owner --no-group               -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT"               website-deploy/changelog/               "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/changelog/"
-          fi
+          rsync -avz --omit-dir-times --no-perms --no-owner --no-group \
+            -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT" \
+            website-deploy/changelog/ \
+            "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/changelog/"
 
       - name: Deploy update metadata
         env:
@@ -110,9 +121,12 @@ jobs:
           SSH_PORT: ${{ secrets.EMCL_PORT }}
         run: |
           set -euo pipefail
-          if [ -d "website-deploy/update" ]; then
-            rsync -avz --omit-dir-times --no-perms --no-owner --no-group               --exclude 'appcast.xml'               --exclude 'releases/'               -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT"               website-deploy/update/               "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/update/"
-          fi
+          rsync -avz --omit-dir-times --no-perms --no-owner --no-group \
+            --exclude 'appcast.xml' \
+            --exclude 'releases/' \
+            -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT" \
+            website-deploy/update/ \
+            "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/update/"
 
       - name: Publish Sparkle appcast last
         env:
@@ -121,9 +135,10 @@ jobs:
           SSH_PORT: ${{ secrets.EMCL_PORT }}
         run: |
           set -euo pipefail
-          if [ -f "website-deploy/update/appcast.xml" ]; then
-            rsync -avz --omit-dir-times --no-perms --no-owner --no-group               -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT"               website-deploy/update/appcast.xml               "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/update/appcast.xml"
-          fi
+          rsync -avz --omit-dir-times --no-perms --no-owner --no-group \
+            -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT" \
+            website-deploy/update/appcast.xml \
+            "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/update/appcast.xml"
 
       - name: Verify public deployment
         run: |
@@ -132,8 +147,4 @@ jobs:
           curl -fsSL "https://emcl.goouzi.top/update/releases.json" -o /tmp/releases.json
           curl -fsSL "https://emcl.goouzi.top/update/appcast.xml" -o /tmp/appcast.xml
           curl -fsSL "https://emcl.goouzi.top/changelog/" -o /tmp/changelog.html
-
-          FILE_NAME="$(python3 -c 'import json; d=json.load(open("/tmp/latest.json", encoding="utf-8")); u=d.get("download_url") or ""; print(u.rstrip("/").split("/")[-1])')"
-          if [ -n "$FILE_NAME" ]; then
-            curl -fsSL --range 0-0               "https://emcl.goouzi.top/update/releases/$FILE_NAME"               -o /dev/null
-          fi
+          curl -fsSL --range 0-0 "https://emcl.goouzi.top/update/releases/Ethereal-Launcher-latest.zip" -o /dev/null
