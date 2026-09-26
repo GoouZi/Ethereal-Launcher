@@ -65,7 +65,7 @@
         root.className = '';
         root.innerHTML = list.map(item => {
           const notes = (item.notes || []).map(n => '<li>'+escapeHtml(n)+'</li>').join('');
-          const bits = ['Build '+escapeHtml(item.build), escapeHtml(item.channel || '')];
+          const bits = [item.build ? 'Build '+escapeHtml(item.build) : '', escapeHtml(item.channel || '')];
           if(item.date) bits.push(escapeHtml(item.date));
           const actions = [];
           if(item.download_url) actions.push('<a href="'+escapeHtml(item.download_url)+'">直接下载</a>');
