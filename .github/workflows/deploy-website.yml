@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "website-deploy/**"
+      - ".github/workflows/deploy-website.yml"
 
   workflow_dispatch:
 
@@ -26,38 +27,81 @@ jobs:
           SSH_HOST: ${{ secrets.EMCL_HOST }}
           SSH_PORT: ${{ secrets.EMCL_PORT }}
         run: |
+          set -euo pipefail
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/emcl_deploy_key
           chmod 600 ~/.ssh/emcl_deploy_key
-
           ssh-keyscan -H -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
-      - name: Test server connection
+      - name: Prepare server directories
         env:
           SSH_HOST: ${{ secrets.EMCL_HOST }}
           SSH_USER: ${{ secrets.EMCL_USER }}
           SSH_PORT: ${{ secrets.EMCL_PORT }}
         run: |
-          ssh \
-            -i ~/.ssh/emcl_deploy_key \
-            -p "$SSH_PORT" \
-            "$SSH_USER@$SSH_HOST" \
-            'mkdir -p /www/wwwroot/emcl.goouzi.top/update /www/wwwroot/emcl.goouzi.top/changelog && echo "GitHub Actions deployment works!" > /www/wwwroot/emcl.goouzi.top/update/github-actions-test.txt'
+          set -euo pipefail
+          ssh -i ~/.ssh/emcl_deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST"             'mkdir -p /www/wwwroot/emcl.goouzi.top/update/releases /www/wwwroot/emcl.goouzi.top/changelog'
 
-      - name: Deploy update files
+      - name: Mirror latest release asset to website
         env:
           SSH_HOST: ${{ secrets.EMCL_HOST }}
           SSH_USER: ${{ secrets.EMCL_USER }}
           SSH_PORT: ${{ secrets.EMCL_PORT }}
         run: |
-          if [ -d "website-deploy/update" ]; then
-            rsync -avz --omit-dir-times --no-perms --no-owner --no-group \
-              -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT" \
-              website-deploy/update/ \
-              "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/update/"
+          set -euo pipefail
+
+          META="website-deploy/update/latest.json"
+          if [ ! -f "$META" ]; then
+            echo "latest.json not present; skipping release mirror."
+            exit 0
+          fi
+
+          GITHUB_URL="$(python3 - <<'PY'
+import json
+with open("website-deploy/update/latest.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+print(data.get("github_download_url") or data.get("download_url") or "")
+PY
+)"
+          EXPECTED_SHA="$(python3 - <<'PY'
+import json
+with open("website-deploy/update/latest.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+print(data.get("sha256") or "")
+PY
+)"
+
+          if [ -z "$GITHUB_URL" ]; then
+            echo "No GitHub release asset URL found in latest.json; skipping mirror."
+            exit 0
+          fi
+
+          FILE_NAME="$(basename "$GITHUB_URL")"
+          mkdir -p /tmp/emcl-release-mirror
+
+          echo "Downloading $FILE_NAME from GitHub Release..."
+          curl -fL --retry 3 --retry-delay 2 "$GITHUB_URL"             -o "/tmp/emcl-release-mirror/$FILE_NAME"
+
+          if [ -n "$EXPECTED_SHA" ]; then
+            ACTUAL_SHA="$(sha256sum "/tmp/emcl-release-mirror/$FILE_NAME" | awk '{print $1}')"
+            if [ "$ACTUAL_SHA" != "$EXPECTED_SHA" ]; then
+              echo "SHA-256 mismatch."
+              echo "Expected: $EXPECTED_SHA"
+              echo "Actual:   $ACTUAL_SHA"
+              exit 1
+            fi
+            printf '%s  %s\n' "$EXPECTED_SHA" "$FILE_NAME"               > "/tmp/emcl-release-mirror/$FILE_NAME.sha256"
+          fi
+
+          rsync -avz --omit-dir-times --no-perms --no-owner --no-group             -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT"             /tmp/emcl-release-mirror/             "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/update/releases/"
+
+          REMOTE_SHA="$(ssh -i ~/.ssh/emcl_deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST"             "sha256sum '/www/wwwroot/emcl.goouzi.top/update/releases/$FILE_NAME' | awk '{print \$1}'")"
+
+          if [ -n "$EXPECTED_SHA" ] && [ "$REMOTE_SHA" != "$EXPECTED_SHA" ]; then
+            echo "Remote mirror SHA-256 mismatch."
+            exit 1
           fi
 
       - name: Deploy changelog files
@@ -66,9 +110,49 @@ jobs:
           SSH_USER: ${{ secrets.EMCL_USER }}
           SSH_PORT: ${{ secrets.EMCL_PORT }}
         run: |
+          set -euo pipefail
           if [ -d "website-deploy/changelog" ]; then
-            rsync -avz --omit-dir-times --no-perms --no-owner --no-group \
-              -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT" \
-              website-deploy/changelog/ \
-              "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/changelog/"
+            rsync -avz --omit-dir-times --no-perms --no-owner --no-group               -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT"               website-deploy/changelog/               "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/changelog/"
+          fi
+
+      - name: Deploy update metadata
+        env:
+          SSH_HOST: ${{ secrets.EMCL_HOST }}
+          SSH_USER: ${{ secrets.EMCL_USER }}
+          SSH_PORT: ${{ secrets.EMCL_PORT }}
+        run: |
+          set -euo pipefail
+          if [ -d "website-deploy/update" ]; then
+            rsync -avz --omit-dir-times --no-perms --no-owner --no-group               --exclude 'appcast.xml'               --exclude 'releases/'               -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT"               website-deploy/update/               "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/update/"
+          fi
+
+      - name: Publish Sparkle appcast last
+        env:
+          SSH_HOST: ${{ secrets.EMCL_HOST }}
+          SSH_USER: ${{ secrets.EMCL_USER }}
+          SSH_PORT: ${{ secrets.EMCL_PORT }}
+        run: |
+          set -euo pipefail
+          if [ -f "website-deploy/update/appcast.xml" ]; then
+            rsync -avz --omit-dir-times --no-perms --no-owner --no-group               -e "ssh -i ~/.ssh/emcl_deploy_key -p $SSH_PORT"               website-deploy/update/appcast.xml               "$SSH_USER@$SSH_HOST:/www/wwwroot/emcl.goouzi.top/update/appcast.xml"
+          fi
+
+      - name: Verify public deployment
+        run: |
+          set -euo pipefail
+          curl -fsSL "https://emcl.goouzi.top/update/latest.json" -o /tmp/latest.json
+          curl -fsSL "https://emcl.goouzi.top/update/releases.json" -o /tmp/releases.json
+          curl -fsSL "https://emcl.goouzi.top/update/appcast.xml" -o /tmp/appcast.xml
+          curl -fsSL "https://emcl.goouzi.top/changelog/" -o /tmp/changelog.html
+
+          FILE_NAME="$(python3 - <<'PY'
+import json
+with open("/tmp/latest.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+url = data.get("download_url") or ""
+print(url.rstrip("/").split("/")[-1])
+PY
+)"
+          if [ -n "$FILE_NAME" ]; then
+            curl -fsSL --range 0-0               "https://emcl.goouzi.top/update/releases/$FILE_NAME"               -o /dev/null
           fi

@@ -2,9 +2,9 @@
   "version": "0.9.2",
   "tag": "v0.9.2",
   "build": 132,
+  "channel": "beta",
   "date": "2026-09-25",
   "published_at": "2026-09-25T16:46:52Z",
-  "prerelease": true,
   "minimum_system_version": "12.4",
   "architectures": [
     "Apple Silicon",
@@ -15,7 +15,10 @@
     "只有发现新版本时才显示应用内更新窗口；当前已是最新版或更新服务器连接失败时不打扰用户。",
     "保留手动“检查更新”入口的原有反馈，用户主动检查时仍会显示检查结果或错误信息。"
   ],
-  "download_url": "https://github.com/GoouZi/Ethereal-Launcher/releases/download/v0.9.2/Ethereal-Launcher-0.9.2.zip",
+  "download_url": "https://emcl.goouzi.top/update/releases/Ethereal-Launcher-0.9.2.zip",
+  "github_download_url": "https://github.com/GoouZi/Ethereal-Launcher/releases/download/v0.9.2/Ethereal-Launcher-0.9.2.zip",
   "github_url": "https://github.com/GoouZi/Ethereal-Launcher/releases/tag/v0.9.2",
-  "changelog_url": "/changelog/v0.9.2.md"
+  "changelog_url": "https://emcl.goouzi.top/changelog/",
+  "sha256": "f86ed015ab193c35be5f16506e3039caeff4addf42af72fab83854e4892df6f8",
+  "size": 11309929
 }
