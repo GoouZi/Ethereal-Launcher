@@ -284,11 +284,11 @@
       "version": "0.3.0",
       "channel": "beta",
       "notes": [
-        "重新进入密集开发阶段，集中完善 Java 与 Minecraft 启动兼容性。",
-        "加强 Java 25 下载、识别与 JDK / JRE 回退，并优化 Apple Silicon / Intel 架构选择。",
+        "加强 Java 25 下载与识别，加入 JDK / JRE 回退，并优化 Apple Silicon / Intel 架构选择。",
         "修复 macOS 所需的 -XstartOnFirstThread，并在启动前检查缺失依赖。",
-        "支持同一 Minecraft 版本使用不同实例名称，并改进新版 Minecraft 的 Java 自动选择。",
-        "加入玩家名称合法性检查并完善下载、安装与启动错误反馈。"
+        "支持同一 Minecraft 版本使用不同实例名称。",
+        "改进新版 Minecraft 的 Java 自动选择与兼容处理。",
+        "加入玩家名称合法性检查，并完善下载、安装与启动错误反馈。"
       ],
       "changelog_url": "/changelog/v0.3.0.md",
       "date": "2026-06-11"
@@ -297,10 +297,10 @@
       "version": "0.2.1",
       "channel": "beta",
       "notes": [
-        "继续补全游戏下载系统，可自动下载 Client、Libraries、Assets 与原生库。",
+        "完善游戏下载系统，可自动下载 Client、Libraries、Assets 与原生库。",
         "完善 Java 8 / 17 / 21 等运行时的自动选择、下载与架构判断。",
-        "加入并发下载、下载进度、日志、取消与失败反馈，提升安装效率与可观察性。",
-        "设置中加入内存分配等游戏参数，并继续完善 macOS 启动参数与 Native 解压。",
+        "加入并发下载、下载进度、日志、取消与失败反馈。",
+        "设置中加入内存分配等游戏参数，并完善 macOS 启动参数与 Native 解压。",
         "新增按 Minecraft 版本记录的游玩时间与总游玩时间统计。"
       ],
       "changelog_url": "/changelog/v0.2.1.md",
@@ -310,11 +310,10 @@
       "version": "0.2.0",
       "channel": "beta",
       "notes": [
-        "完成一次大规模视觉重设计，确立 Ethereal 早期的产品外观。",
-        "加入 Minecraft 场景背景、Ethereal 图形标识与更完整的沉浸式主页。",
+        "重做主页视觉，加入 Minecraft 场景背景与图形 Logo。",
         "主页加入 READY TO EXPLORE、玩家名、版本选择与 LAUNCH GAME 主操作区。",
-        "底部导航扩展为主页、下载与设置三栏，启动器开始形成完整产品结构。",
-        "统一窗口、卡片、按钮与半透明控件的视觉语言。"
+        "底部导航扩展为主页、下载与设置三栏。",
+        "统一窗口、卡片、按钮与半透明控件的视觉样式。"
       ],
       "changelog_url": "/changelog/v0.2.0.md",
       "date": "2026-01-17"
@@ -323,11 +322,11 @@
       "version": "0.1.1",
       "channel": "beta",
       "notes": [
-        "正式采用 Ethereal 品牌，并重构为新的 SwiftUI 主界面。",
-        "形成主页与下载页结构，支持用户名、本地版本选择与一键启动。",
+        "重构 SwiftUI 主界面，加入主页与下载页导航结构。",
+        "支持用户名、本地 Minecraft 版本选择与一键启动。",
         "接入 Minecraft 官方版本列表，并加入正式版、预览版与远古版本筛选。",
         "完善游戏下载进度、日志与取消操作，并继续自动处理 Java 环境。",
-        "下载链路开始使用 BMCLAPI2 镜像以改善资源获取体验。"
+        "下载链路加入 BMCLAPI2 镜像支持。"
       ],
       "changelog_url": "/changelog/v0.1.1.md",
       "date": "2026-01-17"
@@ -336,10 +335,10 @@
       "version": "0.1.0",
       "channel": "beta",
       "notes": [
-        "完成首个可用的 macOS Swift 启动器原型。",
+        "实现 macOS Swift 启动器基础界面与 Minecraft 启动流程。",
         "实现 Java 运行环境的自动下载与准备，无需手动配置 Java。",
-        "完成 Minecraft 启动核心流程，可根据版本信息组织依赖、Classpath 与启动参数。",
-        "已实际验证可从启动器进入 Minecraft 1.21.11，形成最初的可用闭环。"
+        "根据 Minecraft 版本信息组织依赖、Classpath 与启动参数。",
+        "完成 Minecraft 1.21.11 的实际启动验证，可从启动器进入游戏主菜单。"
       ],
       "changelog_url": "/changelog/v0.1.0.md",
       "date": "2026-01-16"
