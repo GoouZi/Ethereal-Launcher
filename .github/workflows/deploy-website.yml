@@ -58,20 +58,8 @@ jobs:
             exit 0
           fi
 
-          GITHUB_URL="$(python3 - <<'PY'
-import json
-with open("website-deploy/update/latest.json", "r", encoding="utf-8") as f:
-    data = json.load(f)
-print(data.get("github_download_url") or data.get("download_url") or "")
-PY
-)"
-          EXPECTED_SHA="$(python3 - <<'PY'
-import json
-with open("website-deploy/update/latest.json", "r", encoding="utf-8") as f:
-    data = json.load(f)
-print(data.get("sha256") or "")
-PY
-)"
+          GITHUB_URL="$(python3 -c 'import json; d=json.load(open("website-deploy/update/latest.json", encoding="utf-8")); print(d.get("github_download_url") or d.get("download_url") or "")')"
+          EXPECTED_SHA="$(python3 -c 'import json; d=json.load(open("website-deploy/update/latest.json", encoding="utf-8")); print(d.get("sha256") or "")')"
 
           if [ -z "$GITHUB_URL" ]; then
             echo "No GitHub release asset URL found in latest.json; skipping mirror."
@@ -145,14 +133,7 @@ PY
           curl -fsSL "https://emcl.goouzi.top/update/appcast.xml" -o /tmp/appcast.xml
           curl -fsSL "https://emcl.goouzi.top/changelog/" -o /tmp/changelog.html
 
-          FILE_NAME="$(python3 - <<'PY'
-import json
-with open("/tmp/latest.json", "r", encoding="utf-8") as f:
-    data = json.load(f)
-url = data.get("download_url") or ""
-print(url.rstrip("/").split("/")[-1])
-PY
-)"
+          FILE_NAME="$(python3 -c 'import json; d=json.load(open("/tmp/latest.json", encoding="utf-8")); u=d.get("download_url") or ""; print(u.rstrip("/").split("/")[-1])')"
           if [ -n "$FILE_NAME" ]; then
             curl -fsSL --range 0-0               "https://emcl.goouzi.top/update/releases/$FILE_NAME"               -o /dev/null
           fi
