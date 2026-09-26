@@ -70,7 +70,6 @@
           const actions = [];
           if(item.download_url) actions.push('<a href="'+escapeHtml(item.download_url)+'">直接下载</a>');
           if(item.github_url) actions.push('<a href="'+escapeHtml(item.github_url)+'" target="_blank" rel="noopener">GitHub Release</a>');
-          if(item.changelog_url) actions.push('<a href="'+escapeHtml(item.changelog_url)+'" target="_blank" rel="noopener">Markdown</a>');
           return '<article class="release"><div><h2>'+escapeHtml(item.version)+'</h2><div class="meta">'+bits.filter(Boolean).join(' · ')+'</div>'+(item.latest?'<span class="latest">最新版本</span>':'')+'</div><div><ul>'+notes+'</ul>'+(actions.length?'<div class="actions">'+actions.join('')+'</div>':'')+'</div></article>';
         }).join('');
       })
