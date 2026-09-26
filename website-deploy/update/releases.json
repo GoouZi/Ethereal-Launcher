@@ -27,7 +27,8 @@
         "模组管理页改为手动检查更新，打开页面时不再自动连接 Modrinth。",
         "精简启动器更新窗口，使版本与状态信息更清晰。"
       ],
-      "changelog_url": "/changelog/v0.9.1.md"
+      "changelog_url": "/changelog/v0.9.1.md",
+      "date": "2026-09-25"
     },
     {
       "version": "0.9.0",
@@ -40,7 +41,8 @@
         "优化模组、材质包与光影包图片缓存和预取，减少重复等待。",
         "重新设计启动器更新界面，使更新过程更紧凑清晰。"
       ],
-      "changelog_url": "/changelog/v0.9.0.md"
+      "changelog_url": "/changelog/v0.9.0.md",
+      "date": "2026-09-25"
     },
     {
       "version": "0.8.2",
@@ -52,7 +54,8 @@
         "菜单栏“检查更新”会先进入“关于 Ethereal Launcher”，再开始检查。",
         "重新设计应用更新界面，与启动器整体视觉保持一致。"
       ],
-      "changelog_url": "/changelog/v0.8.2.md"
+      "changelog_url": "/changelog/v0.8.2.md",
+      "date": "2026-09-24"
     },
     {
       "version": "0.8.1",
@@ -64,7 +67,8 @@
         "产品名称统一为 Ethereal Launcher，并同步应用与关于页面文案。",
         "接入 Sparkle 2，加入应用内检查、下载、安装和重启更新流程。"
       ],
-      "changelog_url": "/changelog/v0.8.1.md"
+      "changelog_url": "/changelog/v0.8.1.md",
+      "date": "2026-09-24"
     },
     {
       "version": "0.8.0",
@@ -76,7 +80,8 @@
         "重新设计 Minecraft 版本分类标签栏，使其与侧边栏、卡片和按钮风格一致。",
         "加入完整的应用内更新流程，包括检查更新、查看更新内容、下载、安装与重启。"
       ],
-      "changelog_url": "/changelog/v0.8.0.md"
+      "changelog_url": "/changelog/v0.8.0.md",
+      "date": "2026-09-24"
     },
     {
       "version": "0.7.0",
@@ -90,7 +95,8 @@
         "关于页面新增官网、GitHub 与检查更新入口。",
         "优化 macOS 12.4 以及“减少动态效果 / 减少透明度”设置下的兼容性。"
       ],
-      "changelog_url": "/changelog/v0.7.0.md"
+      "changelog_url": "/changelog/v0.7.0.md",
+      "date": "2026-09-24"
     },
     {
       "version": "0.6.0",
@@ -104,7 +110,8 @@
         "模组、资源包与光影包会安装到当前版本实际使用的游戏目录，并进行文件校验。",
         "优化启动性能和 macOS 兼容性，包括原生库复用与分辨率参数处理。"
       ],
-      "changelog_url": "/changelog/v0.6.0.md"
+      "changelog_url": "/changelog/v0.6.0.md",
+      "date": "2026-09-24"
     },
     {
       "version": "0.5.3",
@@ -118,7 +125,8 @@
         "改进下载取消后的清理与解锁逻辑。",
         "加强安装与删除目录的安全保护，并统一版本与启动器标识。"
       ],
-      "changelog_url": "/changelog/v0.5.3.md"
+      "changelog_url": "/changelog/v0.5.3.md",
+      "date": "2026-09-23"
     },
     {
       "version": "0.5.2",
