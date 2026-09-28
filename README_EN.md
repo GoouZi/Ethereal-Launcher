@@ -26,7 +26,7 @@ Official builds are distributed through GitHub Releases and the Ethereal Launche
 
 ## System Requirements
 
-- macOS Ventura 13.5 or later
+- macOS Monterey 12.4 or later
 
 Compatibility may change as the project evolves. Please refer to the latest Release notes for current requirements.
 

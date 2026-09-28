@@ -26,7 +26,7 @@ Ethereal Launcher 希望让不熟悉 Java、运行环境或各种依赖配置的
 
 ## 系统要求
 
-- macOS Ventura 13.5 或更高版本
+- macOS Monterey 12.4 或更高版本
 
 后续兼容范围可能会随版本调整，请以最新 Release 说明为准。
 
