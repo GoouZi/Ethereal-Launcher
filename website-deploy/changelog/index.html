@@ -24,6 +24,8 @@
     .release h2{font-size:34px;line-height:1.05;letter-spacing:-.035em;margin:0 0 10px}
     .meta{font-size:14px;color:var(--muted);line-height:1.6}
     .latest{display:inline-flex;margin-top:14px;padding:6px 10px;border:1px solid rgba(41,151,255,.5);border-radius:999px;color:#69b7ff;font-size:12px;font-weight:600}
+    .section+.section{margin-top:30px}
+    .section h3{font-size:18px;line-height:1.35;letter-spacing:-.015em;margin:0 0 10px;color:#f5f5f7}
     ul{margin:0;padding-left:1.2em}
     li{font-size:17px;line-height:1.72;color:#d2d2d7;margin:.42em 0}
     .actions{margin-top:24px;display:flex;gap:18px;flex-wrap:wrap}
@@ -65,12 +67,15 @@
         root.className = '';
         root.innerHTML = list.map(item => {
           const notes = (item.notes || []).map(n => '<li>'+escapeHtml(n)+'</li>').join('');
+          const sections = Array.isArray(item.sections) && item.sections.length
+            ? item.sections.map(section => '<section class="section"><h3>'+escapeHtml(section.title || '')+'</h3><ul>'+(section.items || []).map(n => '<li>'+escapeHtml(n)+'</li>').join('')+'</ul></section>').join('')
+            : '<ul>'+notes+'</ul>';
           const bits = [escapeHtml(item.channel || '')];
           if(item.date) bits.push(escapeHtml(item.date));
           const actions = [];
           if(item.download_url) actions.push('<a href="'+escapeHtml(item.download_url)+'">直接下载</a>');
           if(item.github_url) actions.push('<a href="'+escapeHtml(item.github_url)+'" target="_blank" rel="noopener">GitHub Release</a>');
-          return '<article class="release"><div><h2>'+escapeHtml(item.version)+'</h2><div class="meta">'+bits.filter(Boolean).join(' · ')+'</div>'+(item.latest?'<span class="latest">最新版本</span>':'')+'</div><div><ul>'+notes+'</ul>'+(actions.length?'<div class="actions">'+actions.join('')+'</div>':'')+'</div></article>';
+          return '<article class="release"><div><h2>'+escapeHtml(item.version)+'</h2><div class="meta">'+bits.filter(Boolean).join(' · ')+'</div>'+(item.latest?'<span class="latest">最新版本</span>':'')+'</div><div>'+sections+(actions.length?'<div class="actions">'+actions.join('')+'</div>':'')+'</div></article>';
         }).join('');
       })
       .catch(() => {
