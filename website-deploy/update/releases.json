@@ -216,7 +216,9 @@
       "changelog_url": "/changelog/v0.5.0.md",
       "date": "2026-09-28",
       "build": 137,
-      "latest": true
+      "latest": true,
+      "download_url": "https://emcl.goouzi.top/update/releases/Ethereal-Launcher-latest.zip",
+      "github_url": "https://github.com/GoouZi/Ethereal-Launcher/releases/tag/v0.5.0"
     },
     {
       "version": "0.4.0",

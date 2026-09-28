@@ -1,24 +1,26 @@
 {
-  "version": "0.9.2",
-  "tag": "v0.9.2",
-  "build": 132,
+  "version": "0.5.0",
+  "tag": "v0.5.0",
+  "build": 137,
   "channel": "beta",
-  "date": "2026-09-25",
-  "published_at": "2026-09-25T16:46:52Z",
+  "date": "2026-09-28",
+  "published_at": "2026-09-28T13:18:38Z",
   "minimum_system_version": "12.4",
   "architectures": [
     "Apple Silicon",
     "Intel"
   ],
   "notes": [
-    "每次启动启动器时，通过 Sparkle 在后台执行一次更新检查。",
-    "只有发现新版本时才显示应用内更新窗口；当前已是最新版或更新服务器连接失败时不打扰用户。",
-    "保留手动“检查更新”入口的原有反馈，用户主动检查时仍会显示检查结果或错误信息。"
+    "新增跨版本游戏数据迁移与智能模组迁移，可将存档、设置、服务器列表、资源包、光影和兼容模组带到新实例。",
+    "新增模组管理与更新，并接入 Modrinth 项目信息和兼容版本查找。",
+    "大幅改善旧版 Minecraft 在现代 macOS 与 Apple Silicon 上的兼容性，包括 1.8.9、Alpha、Beta 与 Infdev 等版本。",
+    "新增 Java、内存、版本隔离、完整性检查等实例管理功能，并接入 Sparkle 2 应用内更新。",
+    "统一设置、下载、模组管理、修复和更新等界面体验。"
   ],
   "download_url": "https://emcl.goouzi.top/update/releases/Ethereal-Launcher-latest.zip",
-  "github_download_url": "https://github.com/GoouZi/Ethereal-Launcher/releases/download/v0.9.2/Ethereal-Launcher-0.9.2.zip",
-  "github_url": "https://github.com/GoouZi/Ethereal-Launcher/releases/tag/v0.9.2",
+  "github_download_url": "https://github.com/GoouZi/Ethereal-Launcher/releases/download/v0.5.0/Ethereal.Launcher.beta_0.5.0.zip",
+  "github_url": "https://github.com/GoouZi/Ethereal-Launcher/releases/tag/v0.5.0",
   "changelog_url": "https://emcl.goouzi.top/changelog/",
-  "sha256": "f86ed015ab193c35be5f16506e3039caeff4addf42af72fab83854e4892df6f8",
-  "size": 11309929
+  "sha256": "1619d49f49c1f630ba8bdad0d08b093db871d9aa89c3c4616e52e54a8c70ee92",
+  "size": 5229117
 }
